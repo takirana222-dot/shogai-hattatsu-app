@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>生涯発達論 復習アプリ</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f7fb;
+  --bg2: #eef1f8;
+  --white: #ffffff;
+  --blue: #2563eb;
+  --blue-light: #3b82f6;
+  --blue-pale: #eff6ff;
+  --blue-mid: #dbeafe;
+  --navy: #1e40af;
+  --text: #1e293b;
+  --text2: #475569;
+  --text3: #94a3b8;
+  --border: #e2e8f0;
+  --border2: #cbd5e1;
+  --correct: #16a34a;
+  --correct-bg: #f0fdf4;
+  --correct-border: #bbf7d0;
+  --wrong: #dc2626;
+  --wrong-bg: #fef2f2;
+  --wrong-border: #fecaca;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --radius: 14px;
+  --radius-sm: 10px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { width: 100%; }
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+.app { max-width: 680px; margin: 0 auto; padding: 20px 16px 80px; }
+
+/* SCREENS */
+.screen { display: none; }
+.screen.active { display: block; animation: fadeUp .3s ease; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+
+/* ── TOP ── */
+.top-header {
+  background: var(--blue);
+  border-radius: var(--radius);
+  padding: 28px 24px;
+  color: #fff;
+  margin-bottom: 16px;
+}
+.top-header h1 {
+  font-size: clamp(20px,4vw,26px);
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.top-header p { font-size: 13px; opacity: .8; }
+
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.stat-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 10px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+.stat-num {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--blue);
+}
+.stat-label { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+.progress-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px 18px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow);
+}
+.prog-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text2);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+.prog-bar { height: 7px; background: var(--bg2); border-radius: 4px; overflow: hidden; }
+.prog-fill { height: 100%; background: linear-gradient(90deg, var(--blue), var(--blue-light)); border-radius: 4px; transition: width .6s ease; }
+
+.section-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text3);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.mode-grid {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.mode-btn {
+  background: var(--white);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .18s;
+  color: var(--text2);
+}
+.mode-btn:hover { border-color: var(--blue-light); background: var(--blue-pale); }
+.mode-btn.selected { border-color: var(--blue); background: var(--blue-pale); }
+.mode-num {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--blue);
+  display: block;
+}
+.mode-label { font-size: 12px; color: var(--text3); margin-top: 2px; display: block; }
+
+.start-btn {
+  width: 100%;
+  padding: 16px;
+  background: var(--blue);
+  border: none;
+  border-radius: var(--radius);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: 'Noto Sans JP', sans-serif;
+  cursor: pointer;
+  transition: all .18s;
+  box-shadow: 0 4px 14px rgba(37,99,235,.3);
+}
+.start-btn:hover { background: var(--navy); box-shadow: 0 6px 18px rgba(37,99,235,.35); }
+.start-btn:disabled { background: var(--text3); box-shadow: none; cursor: not-allowed; }
+
+.reset-btn {
+  display: block;
+  margin: 12px auto 0;
+  background: none;
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  color: var(--text3);
+  font-size: 12px;
+  font-family: 'Noto Sans JP', sans-serif;
+  padding: 7px 20px;
+  cursor: pointer;
+  transition: all .18s;
+}
+.reset-btn:hover { border-color: var(--wrong); color: var(--wrong); }
+
+/* ── QUIZ ── */
+.quiz-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.quiz-prog-text {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--text2);
+}
+.quiz-prog-text span { font-size: 18px; font-weight: 600; color: var(--text); }
+.score-chips { display: flex; gap: 8px; }
+.chip {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 4px 11px;
+  font-size: 12px;
+  color: var(--text2);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+}
+.chip.c .n { color: var(--correct); font-weight: 700; }
+.chip.w .n { color: var(--wrong); font-weight: 700; }
+
+.mini-bar { height: 4px; background: var(--bg2); border-radius: 2px; margin-bottom: 18px; overflow: hidden; }
+.mini-fill { height: 100%; background: linear-gradient(90deg, var(--blue), var(--blue-light)); border-radius: 2px; transition: width .4s ease; }
+
+.q-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--blue-pale);
+  border: 1px solid var(--blue-mid);
+  border-radius: 20px;
+  padding: 3px 11px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--blue);
+  margin-bottom: 12px;
+}
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--blue); }
+.dot.main { background: #f59e0b; }
+
+.q-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow);
+}
+.q-text { font-size: 15px; font-weight: 500; line-height: 1.85; color: var(--text); }
+
+.choices { display: flex; flex-direction: column; gap: 9px; margin-bottom: 14px; }
+.choice-btn {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  text-align: left;
+  cursor: pointer;
+  transition: all .15s;
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  color: var(--text);
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 14px;
+  line-height: 1.65;
+  width: 100%;
+  box-shadow: var(--shadow);
+}
+.choice-btn:hover:not(:disabled) { border-color: var(--blue-light); background: var(--blue-pale); transform: translateX(2px); }
+.clabel {
+  min-width: 26px; height: 26px;
+  background: var(--bg2);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text2);
+  flex-shrink: 0;
+  transition: all .15s;
+}
+.choice-btn:hover:not(:disabled) .clabel { background: var(--blue); color: #fff; }
+.choice-btn.correct { border-color: var(--correct); background: var(--correct-bg); }
+.choice-btn.correct .clabel { background: var(--correct); color: #fff; }
+.choice-btn.wrong { border-color: var(--wrong); background: var(--wrong-bg); }
+.choice-btn.wrong .clabel { background: var(--wrong); color: #fff; }
+.choice-btn:disabled { cursor: default; }
+
+/* Result panel */
+.result-panel {
+  display: none;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+  animation: fadeUp .25s ease;
+}
+.result-panel.show { display: block; }
+.res-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.res-header.correct { background: var(--correct-bg); }
+.res-header.wrong { background: var(--wrong-bg); }
+.res-icon {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 700; flex-shrink: 0;
+}
+.res-icon.correct { background: var(--correct); color: #fff; }
+.res-icon.wrong { background: var(--wrong); color: #fff; }
+.res-title { font-weight: 700; font-size: 15px; }
+.res-title.correct { color: var(--correct); }
+.res-title.wrong { color: var(--wrong); }
+
+.res-correct-line {
+  padding: 10px 18px;
+  font-size: 13px;
+  color: var(--text2);
+  background: var(--correct-bg);
+  border-bottom: 1px solid var(--border);
+}
+.res-correct-line strong { color: var(--correct); }
+
+/* Explanation toggle */
+.expl-toggle-btn {
+  width: 100%;
+  background: none;
+  border: none;
+  border-top: 1px solid var(--border);
+  padding: 12px 18px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--blue);
+  font-family: 'Noto Sans JP', sans-serif;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background .15s;
+}
+.expl-toggle-btn:hover { background: var(--blue-pale); }
+.expl-toggle-btn .arrow { transition: transform .2s; display: inline-block; }
+.expl-toggle-btn.open .arrow { transform: rotate(90deg); }
+
+.expl-body {
+  display: none;
+  padding: 14px 18px;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.85;
+  border-top: 1px solid var(--border);
+  background: #fafbfd;
+}
+.expl-body.show { display: block; animation: fadeUp .2s ease; }
+.expl-body strong { color: var(--text); }
+
+.next-btn {
+  width: 100%;
+  padding: 15px;
+  background: var(--white);
+  border: 2px solid var(--blue);
+  border-radius: var(--radius);
+  color: var(--blue);
+  font-size: 15px;
+  font-weight: 700;
+  font-family: 'Noto Sans JP', sans-serif;
+  cursor: pointer;
+  transition: all .18s;
+  display: none;
+}
+.next-btn.show { display: block; }
+.next-btn:hover { background: var(--blue); color: #fff; }
+
+/* ── REVIEW SCREEN ── */
+.review-header-bar {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.review-header-bar h2 { font-size: 16px; font-weight: 700; color: var(--text); }
+.review-header-bar p { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.back-small-btn {
+  background: var(--blue-pale);
+  border: 1.5px solid var(--blue-mid);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--blue);
+  font-family: 'Noto Sans JP', sans-serif;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .15s;
+  flex-shrink: 0;
+}
+.back-small-btn:hover { background: var(--blue); color: #fff; }
+
+.review-item {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  margin-bottom: 10px;
+  box-shadow: var(--shadow);
+}
+.review-item-header {
+  padding: 14px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  transition: background .15s;
+}
+.review-item-header:hover { background: var(--bg); }
+.review-num {
+  min-width: 24px; height: 24px;
+  background: var(--wrong-bg);
+  border: 1.5px solid var(--wrong-border);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--wrong);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.review-q-text { font-size: 13px; font-weight: 500; color: var(--text); line-height: 1.65; flex: 1; }
+.review-chevron { color: var(--text3); font-size: 14px; flex-shrink: 0; transition: transform .2s; margin-top: 2px; }
+.review-item.open .review-chevron { transform: rotate(90deg); }
+
+.review-detail {
+  display: none;
+  border-top: 1px solid var(--border);
+  background: #fafbfd;
+}
+.review-item.open .review-detail { display: block; animation: fadeUp .2s ease; }
+.review-correct-box {
+  padding: 12px 16px;
+  background: var(--correct-bg);
+  border-bottom: 1px solid var(--correct-border);
+  font-size: 13px;
+  color: var(--text2);
+}
+.review-correct-box strong { color: var(--correct); }
+.review-expl-toggle {
+  width: 100%;
+  background: none;
+  border: none;
+  border-top: 1px solid var(--border);
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--blue);
+  font-family: 'Noto Sans JP', sans-serif;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background .15s;
+}
+.review-expl-toggle:hover { background: var(--blue-pale); }
+.review-expl-toggle .arrow { transition: transform .2s; display: inline-block; }
+.review-expl-toggle.open .arrow { transform: rotate(90deg); }
+.review-expl-body {
+  display: none;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.85;
+  border-top: 1px solid var(--border);
+}
+.review-expl-body.show { display: block; }
+.review-expl-body strong { color: var(--text); }
+
+/* ── FINISH SCREEN ── */
+.finish-wrap { padding: 32px 0; }
+.finish-score-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  text-align: center;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow);
+}
+.finish-pct {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 56px;
+  font-weight: 700;
+  color: var(--blue);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.finish-msg { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+.finish-sub { font-size: 13px; color: var(--text2); }
+
+.finish-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.finish-stat {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+.finish-stat-num {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+}
+.finish-stat-num.c { color: var(--correct); }
+.finish-stat-num.w { color: var(--wrong); }
+.finish-stat-label { font-size: 12px; color: var(--text3); margin-top: 3px; }
+
+.review-link-btn {
+  width: 100%;
+  padding: 15px;
+  background: var(--wrong-bg);
+  border: 2px solid var(--wrong-border);
+  border-radius: var(--radius);
+  color: var(--wrong);
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'Noto Sans JP', sans-serif;
+  cursor: pointer;
+  transition: all .18s;
+  margin-bottom: 10px;
+  display: none;
+}
+.review-link-btn:hover { background: var(--wrong); color: #fff; }
+.review-link-btn.show { display: block; }
+
+.back-top-btn {
+  width: 100%;
+  padding: 15px;
+  background: var(--blue);
+  border: none;
+  border-radius: var(--radius);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: 'Noto Sans JP', sans-serif;
+  cursor: pointer;
+  transition: all .18s;
+  box-shadow: 0 4px 14px rgba(37,99,235,.25);
+}
+.back-top-btn:hover { background: var(--navy); }
+
+/* ── BOOKMARK BUTTON in review list ── */
+.review-bookmark-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border2);
+  background: var(--white);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text3);
+  font-family: 'Noto Sans JP', sans-serif;
+  cursor: pointer;
+  transition: all .18s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.review-bookmark-btn:hover { border-color: #f59e0b; color: #f59e0b; }
+.review-bookmark-btn.saved { border-color: #f59e0b; background: #fffbeb; color: #d97706; }
+.review-bookmark-btn .bk-icon { font-size: 14px; }
+
+/* ── SAVED SCREEN ── */
+.saved-header-bar {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.saved-header-bar h2 { font-size: 16px; font-weight: 700; color: var(--text); }
+.saved-header-bar p { font-size: 12px; color: var(--text3); margin-top: 2px; }
+
+.saved-item {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  margin-bottom: 10px;
+  box-shadow: var(--shadow);
+}
+.saved-item-header {
+  padding: 14px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.saved-item-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  flex: 1;
+  cursor: pointer;
+}
+.saved-item-left:hover .saved-q-text { color: var(--blue); }
+.saved-num {
+  min-width: 24px; height: 24px;
+  background: #fffbeb;
+  border: 1.5px solid #fde68a;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #d97706;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.saved-q-text { font-size: 13px; font-weight: 500; color: var(--text); line-height: 1.65; flex: 1; transition: color .15s; }
+.saved-chevron { color: var(--text3); font-size: 14px; flex-shrink: 0; transition: transform .2s; margin-top: 2px; cursor: pointer; }
+.saved-item.open .saved-chevron { transform: rotate(90deg); }
+
+/* uncheck button in saved list */
+.uncheck-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border-radius: 16px;
+  border: 1.5px solid #fde68a;
+  background: #fffbeb;
+  font-size: 11px;
+  font-weight: 600;
+  color: #d97706;
+  font-family: 'Noto Sans JP', sans-serif;
+  cursor: pointer;
+  transition: all .18s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.uncheck-btn:hover { background: var(--wrong); border-color: var(--wrong); color: #fff; }
+
+.saved-detail {
+  display: none;
+  border-top: 1px solid var(--border);
+  background: #fafbfd;
+}
+.saved-item.open .saved-detail { display: block; animation: fadeUp .2s ease; }
+.saved-correct-box {
+  padding: 12px 16px;
+  background: var(--correct-bg);
+  border-bottom: 1px solid var(--correct-border);
+  font-size: 13px;
+  color: var(--text2);
+}
+.saved-correct-box strong { color: var(--correct); }
+.saved-expl-toggle {
+  width: 100%;
+  background: none;
+  border: none;
+  border-top: 1px solid var(--border);
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--blue);
+  font-family: 'Noto Sans JP', sans-serif;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background .15s;
+}
+.saved-expl-toggle:hover { background: var(--blue-pale); }
+.saved-expl-toggle .arrow { transition: transform .2s; display: inline-block; }
+.saved-expl-toggle.open .arrow { transform: rotate(90deg); }
+.saved-expl-body {
+  display: none;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.85;
+  border-top: 1px solid var(--border);
+}
+.saved-expl-body.show { display: block; }
+.saved-expl-body strong { color: var(--text); }
+
+.saved-empty {
+  text-align: center;
+  padding: 48px 16px;
+  color: var(--text3);
+  font-size: 14px;
+}
+.saved-empty .icon { font-size: 36px; margin-bottom: 12px; }
+
+/* saved button on top screen */
+.saved-link-btn {
+  width: 100%;
+  padding: 14px;
+  background: #fffbeb;
+  border: 2px solid #fde68a;
+  border-radius: var(--radius);
+  color: #d97706;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'Noto Sans JP', sans-serif;
+  cursor: pointer;
+  transition: all .18s;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.saved-link-btn:hover { background: #f59e0b; border-color: #f59e0b; color: #fff; }
+
+@media (max-width: 480px) {
+  .stat-num { font-size: 22px; }
+  .q-text { font-size: 14px; }
+  .choice-btn { font-size: 13px; padding: 12px 13px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- TOP -->
+<div id="screen-top" class="screen active">
+  <div class="top-header">
+    <h1>生涯発達論 復習アプリ</h1>
+    <p>全75問 · ランダム出題 · 解説つき</p>
+  </div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-num" id="stat-done">0</div><div class="stat-label">取り組み済み</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-cor">0</div><div class="stat-label">正解数</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-acc">—</div><div class="stat-label">正答率</div></div>
+  </div>
+  <div class="progress-card">
+    <div class="prog-label"><span>全問進捗</span><span id="prog-text">0 / 75問</span></div>
+    <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+  <button class="saved-link-btn" id="saved-link-btn" onclick="goSaved()">⭐ 保存した問題 <span id="saved-count-badge"></span></button>
+  <div class="section-label">問題数を選んでください</div>
+  <div class="mode-grid">
+    <div class="mode-btn" onclick="selectMode(this,25)"><span class="mode-num">25</span><span class="mode-label">問</span></div>
+    <div class="mode-btn" onclick="selectMode(this,50)"><span class="mode-num">50</span><span class="mode-label">問</span></div>
+    <div class="mode-btn" onclick="selectMode(this,75)"><span class="mode-num">75</span><span class="mode-label">問</span></div>
+  </div>
+  <button class="start-btn" id="start-btn" disabled onclick="startQuiz()">スタート</button>
+  <button class="reset-btn" onclick="confirmReset()">進捗をリセット</button>
+</div>
+
+<!-- QUIZ -->
+<div id="screen-quiz" class="screen">
+  <div class="quiz-header">
+    <div class="quiz-prog-text"><span id="q-cur">1</span> / <span id="q-tot">25</span>問</div>
+    <div class="score-chips">
+      <div class="chip c">正解 <span class="n" id="hdr-c">0</span></div>
+      <div class="chip w">不正解 <span class="n" id="hdr-w">0</span></div>
+    </div>
+  </div>
+  <div class="mini-bar"><div class="mini-fill" id="mini-fill" style="width:0%"></div></div>
+  <div class="q-tag"><div class="dot" id="q-dot"></div><span id="q-cat">第1回</span></div>
+  <div class="q-card"><div class="q-text" id="q-text">問題文</div></div>
+  <div class="choices" id="choices"></div>
+  <div class="result-panel" id="result-panel">
+    <div class="res-header" id="res-header">
+      <div class="res-icon" id="res-icon"></div>
+      <div class="res-title" id="res-title"></div>
+    </div>
+    <div class="res-correct-line" id="res-correct-line" style="display:none"></div>
+    <button class="expl-toggle-btn" id="expl-toggle" onclick="toggleExpl()">
+      <span class="arrow">▶</span> 解説を見る
+    </button>
+    <div class="expl-body" id="expl-body"></div>
+  </div>
+  <button class="next-btn" id="next-btn" onclick="nextQuestion()">次の問題へ →</button>
+</div>
+
+<!-- REVIEW -->
+<div id="screen-review" class="screen">
+  <div class="review-header-bar">
+    <div>
+      <h2>間違えた問題の見直し</h2>
+      <p id="review-count-text">0問</p>
+    </div>
+    <button class="back-small-btn" onclick="goFinish()">結果に戻る</button>
+  </div>
+  <div id="review-list"></div>
+</div>
+
+<!-- FINISH -->
+<div id="screen-finish" class="screen">
+  <div class="finish-wrap">
+    <div class="finish-score-card">
+      <div class="finish-pct" id="fin-pct">0%</div>
+      <div class="finish-msg" id="fin-msg"></div>
+      <div class="finish-sub" id="fin-sub"></div>
+    </div>
+    <div class="finish-grid">
+      <div class="finish-stat"><div class="finish-stat-num c" id="fin-c">0</div><div class="finish-stat-label">正解</div></div>
+      <div class="finish-stat"><div class="finish-stat-num w" id="fin-w">0</div><div class="finish-stat-label">不正解</div></div>
+    </div>
+    <button class="review-link-btn" id="review-link-btn" onclick="goReview()">間違えた問題を見直す</button>
+    <button class="back-top-btn" onclick="goTop()">トップに戻る</button>
+  </div>
+</div>
+
+<!-- SAVED -->
+<div id="screen-saved" class="screen">
+  <div class="saved-header-bar">
+    <div>
+      <h2>⭐ 保存した問題</h2>
+      <p id="saved-screen-count">0問</p>
+    </div>
+    <button class="back-small-btn" onclick="goTop()">トップに戻る</button>
+  </div>
+  <div id="saved-list"></div>
+</div>
+
+</div><!-- /app -->
+<script>
+// =============================================
+// QUESTION DATA
+// =============================================
+const QUESTIONS = [
+  // ─── 第1回 本番7問 ───
+  {id:1,round:1,isMain:true,text:"「発達（development）」の定義として最も適切なものはどれか。",choices:["受精から死に至るまでの心身の連続的変化の過程","受精から成人期までの心身の量的増大の過程","学習と成熟の結果として生じる機能向上の過程","成熟期以降に生じる加齢に伴う変化の過程"],answer:0,explanation:"<strong>発達</strong>は「受精から死に至るまで」の全生涯を対象とし、量的増大だけでなく質的変容・衰退も含む連続的変化の過程です。成人期までに限定したり、機能向上のみを指すものではありません。"},
+  {id:2,round:1,isMain:true,text:"生涯発達心理学における「多方向性」の説明として最も適切なものはどれか。",choices:["発達の順序は一定だが，文化によって方向が変わること","高齢になるほど発達の経路が個人ごとに多様化すること","ある側面が向上する一方で別の側面が低下するなど，獲得と喪失が同時に生じること","発達は常に右肩上がりで進み，最終的に安定に達すること"],answer:2,explanation:"<strong>多方向性</strong>とは、発達が一方向（成長のみ）ではなく、獲得と喪失が同時に生じるという視点です。例えば乳幼児期に言語が発達する一方、母国語にない音の聞き分けは失われます。"},
+  {id:3,round:1,isMain:true,text:"「乳歯から永久歯への生え変わり」や「思春期における二次性徴の出現」は，発達の諸概念のうちどれにあたるか。",choices:["学習（learning）","成長（growth）","老化（aging）","成熟（maturation）"],answer:3,explanation:"<strong>成熟</strong>は遺伝的プログラムに基づき、経験や練習の影響をほとんど受けずに内的要因で進む質的変化です。二次性徴や歯の生え変わりはその典型例です。"},
+  {id:4,round:1,isMain:true,text:"ジェンセンの「環境閾値説」の内容として最も適切なものはどれか。",choices:["あらゆる能力は同じ程度に環境の影響を受ける","特性によって，素質が開花するために必要な環境の質（閾値）が異なる","知能は遺伝のみによって決まり，環境の影響はほとんどない","環境条件が同一であれば，遺伝に関わらず発達の速度は等しくなる"],answer:1,explanation:"<strong>環境閾値説</strong>では、身長のように環境の影響を受けにくい特性もあれば、知能・性格のように環境の質に大きく左右される特性もあり、特性ごとに必要な環境の閾値が異なると考えます。"},
+  {id:5,round:1,isMain:true,text:"ブロンフェンブレンナーの生態学的システム理論において，本人は直接関与しないが影響を与える環境（親の職場・地域行政など）を何というか。",choices:["マイクロシステム","メゾシステム","エクソシステム","マクロシステム"],answer:2,explanation:"<strong>エクソシステム</strong>は、本人が直接参加しないが間接的に影響を受ける環境層です。親の職場環境が家庭の雰囲気に影響するケースが典型例です。"},
+  {id:6,round:1,isMain:true,text:"「ハイハイから独歩への移行」のように，ある時期を境に行動の仕組みそのものが変わる変化は，発達の特徴のうちどれにあたるか。",choices:["非連続的変化（段階的変化）","連続的変化（量的変化）","分化の過程","統合の過程"],answer:0,explanation:"ハイハイから独歩への移行は、移動スピードの増大ではなく運動の仕組み自体が変わる<strong>非連続的変化（質的変化）</strong>です。ピアジェの発達段階説も同じ考え方に基づきます。"},
+  {id:7,round:1,isMain:true,text:"「環境さえ整えれば，どのような人間にも育てられる」と主張し，環境優位説を唱えたのはだれか。",choices:["ゲゼル","ブロンフェンブレンナー","ジェンセン","ワトソン"],answer:3,explanation:"<strong>ワトソン</strong>は行動主義の立場から「適切な訓練と環境設定があれば，どのような人間にも育てられる」と主張しました。環境優位説の代表的論者です。"},
+  // ─── 第2回 本番7問 ───
+  {id:8,round:2,isMain:true,text:"ゲゼルの双生児実験が示した「レディネス（準備性）」の内容として最も適切なものはどれか。",choices:["学習の開始は早ければ早いほど，長期的な効果が高い","遺伝的な成熟が整わないうちに行う訓練は，効果が薄い","環境さえ整えれば，成熟の段階を超えた学習が可能になる","同じ遺伝条件をもつ双生児では，訓練量の差が成果を決定する"],answer:1,explanation:"ゲゼルの<strong>階段昇降実験</strong>では、成熟を待った後に短期間訓練した双生児の方が成果が高かったことから、学習にはレディネス（準備性）＝成熟が必要と示されました。"},
+  {id:9,round:2,isMain:true,text:"ポルトマンが「二次的留巣性」で示した内容として最も適切なものはどれか。",choices:["人間は生理的に完成した状態で誕生する","人間の乳児は他の霊長類より早い時期に自力移動できるようになる","人間は本来より約1年早く未熟な状態で生まれ，胎外で発達を続ける","人間の脳は出生後には構造的な変化を起こさない"],answer:2,explanation:"ポルトマンの<strong>二次的留巣性</strong>：人間は脳が巨大すぎて完成前に産道を通らざるを得ないため、約1年早く未熟な状態で生まれ、「胎外の胎児」として外界の文化・言語の中で発達します。"},
+  {id:10,round:2,isMain:true,text:"ボウルビィの愛着理論における「安全基地（secure base）」の説明として最も適切なものはどれか。",choices:["信頼できる養育者を拠点として，子どもが安心して外界を探索できること","乳児が恐怖を感じたとき，養育者のそばで泣き続けようとする本能的行動","養育者から栄養を得ることで，外界への関心が高まっていく仕組み","愛着対象がそばにいることで，かえって探索行動が抑制される現象"],answer:0,explanation:"<strong>安全基地</strong>（エインスワース命名）とは、信頼できる養育者を拠点として、子どもが安心して外の世界を探索できる状態を指します。愛着は探索行動を抑制するのではなく促進します。"},
+  {id:11,round:2,isMain:true,text:"ハーロウの代理母実験において，子ザルが示した行動として正しいものはどれか。",choices:["ミルクを与える針金の母のそばで一日中過ごした","針金の母と布の母の両方に，ほぼ等しい時間接触した","どちらの代理母よりも，実験者（人間）への接触を強く求めた","空腹時以外は，ミルクの出ない布の母のそばで過ごした"],answer:3,explanation:"子ザルは空腹時のみ針金の母に近づいてミルクを飲み、それ以外の時間は<strong>布の母</strong>にしがみついていました。愛着形成には栄養よりも「接触の快（柔らかさ・安心感）」が重要と示されました。"},
+  {id:12,round:2,isMain:true,text:"エインスワースのSS法における「回避型（Aタイプ）」の特徴として正しいものはどれか。",choices:["養育者との分離時に激しく泣き，再会時もなかなか落ち着かない","養育者が戻っても近づこうとせず，分離・再会時に反応が乏しい","養育者が戻ると素直に接触を求め，速やかに落ち着く","養育者の前で硬直するなど，一貫性のない混乱した行動をとる"],answer:1,explanation:"<strong>回避型（Aタイプ）</strong>は、拒絶的・過干渉な養育環境が背景にあることが多く、分離・再会時ともに反応が乏しく、養育者を避けるような行動が特徴です。"},
+  {id:13,round:2,isMain:true,text:"パブロフの実験で示された「般化（はんか）」の説明として正しいものはどれか。",choices:["もとの条件刺激に似た別の刺激にも，同様の条件反応が起こること","条件刺激を繰り返しても無条件刺激が伴わない場合，反応が消えていく現象","条件づけが進むにつれて，反応の強度が増大していく現象","条件づけが成立した後，無条件刺激なしでも反応が永続すること"],answer:0,explanation:"<strong>般化</strong>とは、条件づけで学習した反応が、元の条件刺激に類似した別の刺激に対しても起こることです。過去の怖い体験が似た状況で不安を引き起こすのも般化の例です。"},
+  {id:14,round:2,isMain:true,text:"ボウルビィが提唱した「内的ワーキング・モデル」の説明として最も適切なものはどれか。",choices:["安全基地を拠点として外界を探索する行動パターンを指す","乳児が愛着対象の顔や声に反応する生得的な行動システムを指す","養育者との経験から形成され，その後の対人関係における自己・他者イメージの雛形となる内的表象","養育者から離れたときの不安を和らげるための認知的な方略を指す"],answer:2,explanation:"<strong>内的ワーキング・モデル</strong>とは、乳児期の愛着経験から形成される「自分は愛される存在か」「他者は信頼できるか」という内的表象で、その後の自己肯定感や対人関係の雛形となります。"},
+  // ─── 第3回 本番7問 ───
+  {id:15,round:3,isMain:true,text:"胎芽期（受精後2〜8週）を「臨界期（感受性期）」と呼ぶ理由として最も適切なものはどれか。",choices:["胎児が母親の声やリズムを識別できるようになる時期であるため","胎外生存が医療的に可能になる境界の時期であるため","胎動が明瞭になり，母子の情緒的絆が形成され始める時期であるため","主要器官が急速に形成される時期であり，外的因子による奇形が生じやすいため"],answer:3,explanation:"<strong>臨界期（感受性期）</strong>は胎芽期（2〜8週）で、心臓・脳・消化器など主要器官の原型が急速に形成される時期です。この時期に有害因子（テラトゲン）にさらされると重大な奇形リスクがあります。"},
+  {id:16,round:3,isMain:true,text:"妊娠中の飲酒が胎児に与える影響として正しいものはどれか。",choices:["アルコールは胎盤を通過しにくいため，少量であれば胎児への影響はない","知的障害や特異な顔貌などを特徴とする胎児性アルコール症候群（FAS）を引き起こしうる","影響は主に出生後の授乳期を通じて現れる","ダウン症候群の原因となることが確認されている"],answer:1,explanation:"アルコールは胎盤を<strong>無制限に通過</strong>し、脳発達を阻害します。<strong>胎児性アルコール症候群（FAS）</strong>は知的障害・特異顔貌を特徴とし、安全な飲酒量は存在しないとされています。"},
+  {id:17,round:3,isMain:true,text:"出生直後の新生児を評価するアプガースコアで，評価項目に含まれないものはどれか。",choices:["心拍数","筋緊張","体温","皮膚の色"],answer:2,explanation:"<strong>アプガースコア</strong>の5項目は「皮膚の色・心拍数・刺激への反応・筋緊張・呼吸」です。体温は含まれません。7点以上が正常、3点以下は重度仮死で即時蘇生が必要です。"},
+  {id:18,round:3,isMain:true,text:"原始反射の「モロー反射」の説明として正しいものはどれか。",choices:["突然の刺激に対して両腕を広げ，抱きつくような動作をする反射で，生後3〜4か月頃に消失する","口に触れたものを吸おうとする反射で，生後4〜7か月頃に消失する","手のひらを刺激すると強く握りしめる反射で，生後3〜4か月頃に消失する","足の裏を刺激すると親指が反り返る反射で，1〜2歳頃に消失する"],answer:0,explanation:"<strong>モロー反射</strong>は突然の刺激（音・体位変換など）で両腕を広げ抱きつく動作をする反射で、生後3〜4か月頃に消失します。消失の遅れは脳障害、左右差は鎖骨骨折などを示唆します。"},
+  {id:19,round:3,isMain:true,text:"生後9か月頃に成立する「共同注意（joint attention）」の説明として最も適切なものはどれか。",choices:["乳児が特定の養育者とその他の人物を明確に識別できるようになる現象","乳児が鏡に映った自分の姿を認識できるようになること","養育者の感情表現を参照して，自分の行動を決定するようになること","自分・相手・物の三項関係が成立し，相手が注目するものを視線で追うようになること"],answer:3,explanation:"<strong>共同注意</strong>（9か月革命）は「自分・相手・物」の三項関係が成立し、相手の視線を追うようになる現象です。言葉の獲得や他者の意図理解の基礎となります。"},
+  {id:20,round:3,isMain:true,text:"エインスワースのSS法における「安定型（Bタイプ）」の特徴として正しいものはどれか。",choices:["養育者との分離にも再会にも一貫して反応が乏しく，親を避けようとする","分離時も再会時も激しく泣き続け，しがみつきながら養育者を拒絶する","分離時に泣くが，再会時に養育者への接触を求めることで速やかに落ち着く","養育者が戻ると硬直したり混乱した動きを示したりする"],answer:2,explanation:"<strong>安定型（Bタイプ）</strong>は養育者の応答性が高い環境で形成されます。分離時は泣きますが、再会時に接触を求めることで速やかに落ち着き、外界の探索を再開できます。"},
+  {id:21,round:3,isMain:true,text:"妊娠中の喫煙が胎児・新生児に与えるリスクとして正しいものはどれか。",choices:["先天性風疹症候群と同様のメカニズムで胎児の器官形成を阻害する","低出生体重児や乳幼児突然死症候群（SIDS）のリスクを高める","妊娠初期の臨界期にのみ影響し，それ以降は胎児への作用はない","胎内での聴覚発達を著しく障害し，難聴の主因となる"],answer:1,explanation:"喫煙はニコチンによる血管収縮と一酸化炭素による低酸素状態をもたらします。<strong>低出生体重児・胎盤早期剥離・SIDS</strong>のリスクを数倍に高めることが確認されています。"},
+  // ─── 第4回 本番7問 ───
+  {id:22,round:4,isMain:true,text:"ピアジェの前操作期（2〜7歳）における「象徴機能」の説明として正しいものはどれか。",choices:["目の前にないものを記号やイメージで表現できる能力","他者の視点に立って物事を考えられるようになる能力","形が変わっても量は変わらないと理解できる能力","仮定に基づいて論理的な推論ができる能力"],answer:0,explanation:"<strong>象徴機能</strong>とは、目の前にないものを言葉・絵・ごっこ遊びなどの記号やイメージで表現できる能力です。ごっこ遊び・見立て遊びはこの機能の発達を示します。"},
+  {id:23,round:4,isMain:true,text:"ピアジェの「三つ山課題」で明らかにされた幼児の思考特性として正しいものはどれか。",choices:["保存概念の未発達","アニミズム思考","延滞模倣の困難","自己中心性（他者が自分と同じ視点で見ていると思い込む傾向）"],answer:3,explanation:"<strong>三つ山課題</strong>では、別の位置にいる人形の視点からの山の見え方を聞くと、幼児は自分の視点から見た様子を答えます。これが<strong>自己中心性</strong>（わがままではなく思考の特性）です。"},
+  {id:24,round:4,isMain:true,text:"幼児が「おもちゃが泣いている」「お日様が怒っている」などと表現する思考特性を何というか。",choices:["自己中心性","アニミズム思考","象徴機能","延滞模倣"],answer:1,explanation:"<strong>アニミズム思考</strong>とは、無生物にも生命・意志・感情があると考える幼児期の思考特性です。6歳頃まで「すべては生きている」と判断する段階が続きます。"},
+  {id:25,round:4,isMain:true,text:"幼児が「細長いコップに注ぎ替えると水が増えた」と判断する理由として最も適切なものはどれか。",choices:["自己中心性が強く，自分に都合のよい方向で解釈するため","可逆的な思考ができず，もとの状態に戻して考えることができないため","保存概念がまだ獲得されておらず，見た目の変化で量を判断するため","象徴機能が発達途上であり，量という概念を言葉で理解できないため"],answer:2,explanation:"<strong>保存概念</strong>は「形が変わっても量は同じ」という理解で、前操作期の幼児にはまだ獲得されていません。見た目（高さ）の変化で量を判断してしまいます。7歳頃に獲得されます。"},
+  {id:26,round:4,isMain:true,text:"パーテンの遊びの分類において，ルールや目的を共有し役割分担をしながら集団で行う最も発達した遊びを何というか。",choices:["協同遊び","連合遊び","平行遊び","傍観的行動"],answer:0,explanation:"パーテンの分類で最も発達した遊びは<strong>協同遊び</strong>（3〜6歳以降）です。ルールや目的を共有し、リーダーを決めて役割分担しながら集団で取り組みます（鬼ごっこ・ごっこ遊びなど）。"},
+  {id:27,round:4,isMain:true,text:"2〜3歳頃の「イヤイヤ期（第一次反抗期）」をエリクソンの発達理論ではどのような課題として捉えるか。",choices:["自主性　対　罪悪感","勤勉性　対　劣等感","同一性　対　役割拡散","自律性　対　恥・疑惑"],answer:3,explanation:"エリクソンの第2段階（幼児前期）の危機は<strong>「自律性 対 恥・疑惑」</strong>です。「自分でやりたい」という自律性の芽生えがイヤイヤ期として現れます。わがままではなく健全な発達のサインです。"},
+  {id:28,round:4,isMain:true,text:"「サリー・アン課題」において，3歳児が「箱」と誤って回答する理由として最も適切なものはどれか。",choices:["課題に使われる言葉の意味が理解できていないため","記憶力が発達途上で，ボールを移動させた場面を忘れてしまうため","自分が知っている現実と，サリーの信念（考え）の違いを区別できないため","アニミズム思考によって，人形を生きた存在として扱ってしまうため"],answer:2,explanation:"3歳児が「箱」と答えるのは<strong>心の理論</strong>がまだ未発達で、「自分が知っている（ボールは箱にある）」という現実と、「サリーが信じている（ボールはかごにある）」という他者の信念を区別できないためです。"},
+  // ─── 第5回 本番7問 ───
+  {id:29,round:5,isMain:true,text:"ピアジェの「具体的操作期（7〜11歳）」に獲得される「脱中心化」の説明として正しいものはどれか。",choices:["自分の欲求を抑えて，集団のルールに合わせられるようになること","自分の視点だけでなく，他者の視点に立って物事を考えられるようになること","目の前の具体物がなくても，抽象的な概念を操作できるようになること","感情を状況に応じて適切にコントロールできるようになること"],answer:1,explanation:"<strong>脱中心化</strong>とは、自分の視点だけでなく他者の視点に立てるようになることです。三つ山課題で正答できるようになるのはこの能力の獲得を示します（具体的操作期以降）。"},
+  {id:30,round:5,isMain:true,text:"エリクソンの発達理論において，児童期（学童期）の心理社会的危機として正しいものはどれか。",choices:["勤勉性　対　劣等感","自律性　対　恥・疑惑","自主性　対　罪悪感","親密性　対　孤立"],answer:0,explanation:"エリクソンの第4段階（児童期）の危機は<strong>「勤勉性 対 劣等感」</strong>です。学習・運動・係活動などに取り組み「やればできる」という有能感を獲得することが課題です。"},
+  {id:31,round:5,isMain:true,text:"「自分が何をわかっていて，何をわかっていないか」を客観的に把握し，学習方略を調整する能力を何というか。",choices:["結晶性知能","自己効力感","流動性知能","メタ認知"],answer:3,explanation:"<strong>メタ認知</strong>とは「自分の認知を認知する」能力です。10歳頃から発達し、「私は漢字が苦手」などと自分の学習状態をモニタリングして方略を調整できるようになります。"},
+  {id:32,round:5,isMain:true,text:"バンデューラが提唱した「自己効力感」を高める上で，最も基盤となる要因はどれか。",choices:["周囲からの言語的な励まし（「あなたならできる」）","他者が成功している場面を観察すること","自分自身の成功体験を積み重ねること","身体的な緊張状態を適切にコントロールすること"],answer:2,explanation:"<strong>自己効力感</strong>を高める要因は4つ（成功体験・モデリング・言語的説得・生理的状態）ありますが、最も強力な基盤は<strong>自分自身の成功体験</strong>（達成経験）の積み重ねです。"},
+  {id:33,round:5,isMain:true,text:"コールバーグの道徳性発達理論において，「よい子と思われたい」「法や秩序を守ることが大切だ」という判断基準にあたる水準を何というか。",choices:["前慣習的水準","慣習的水準","脱慣習的水準","自律的水準"],answer:1,explanation:"<strong>慣習的水準</strong>（児童期後半〜青年期）では、社会の規範・ルール・他者からの評価が判断基準となります。「よい子と思われたい」「法を守ることが大切」という判断がその代表です。"},
+  {id:34,round:5,isMain:true,text:"児童期後半（9〜10歳頃）に，同性・同年齢の閉鎖的な仲間集団をつくって行動し，秘密のルールや仲間意識を共有する時期を何というか。",choices:["チャムシップ","心理的離乳","モラトリアム","ギャングエイジ"],answer:3,explanation:"<strong>ギャングエイジ（徒党時代）</strong>は9〜10歳頃に特徴的です。同性・同年齢の閉鎖的仲間集団で行動し、秘密の遊び・内輪のルールを共有することで強い仲間意識を育みます。"},
+  {id:35,round:5,isMain:true,text:"森田洋司が示した「いじめの4層構造」において，傍観者が「やめろ」と介入することで果たす役割として正しいものはどれか。",choices:["仲裁者となり，いじめを抑止する","観衆となり，加害者をさらに勢いづかせる","被害者の立場に転落するリスクが高まる","教師への報告を促すきっかけにはなるが，直接の抑止力にはならない"],answer:0,explanation:"いじめの4層構造は①被害者②加害者③観衆④傍観者から成ります。傍観者が「やめろ」と声を上げることで<strong>仲裁者</strong>となり、いじめを直接抑止する力になります。"},
+  // ─── 第6回 本番8問 ───
+  {id:36,round:6,isMain:true,text:"マルシアの同一性地位4類型において，危機を経験せず親や周囲の価値観をそのまま受け入れ傾倒している状態を何というか。",choices:["同一性達成","モラトリアム","早期完了","同一性拡散"],answer:2,explanation:"<strong>早期完了（フォークロージャー）</strong>は「危機なし・傾倒あり」の状態です。親が医者だから自分も医者になる、というように自ら葛藤・探索せずに決定しています。一見安定して見えますが、危機への脆弱性があります。"},
+  {id:37,round:6,isMain:true,text:"エルキンドが示した「個人的寓話（personal fable）」の説明として最も適切なものはどれか。",choices:["「みんなが常に自分を見ている・評価している」という思い込み","将来の自分を，架空の物語の主人公になぞらえて想像すること","自分の失敗の原因を外部の状況や他者に帰属させること","「自分だけは特別であり，自分の気持ちは誰にも理解できない」という思い込み"],answer:3,explanation:"<strong>個人的寓話</strong>とは「自分だけは特別だ」「自分の気持ちは誰にも理解できない」という青年期特有の思い込みです。「あなたにはわからない」という言葉の背景にある心理です。"},
+  {id:38,round:6,isMain:true,text:"エリクソンの理論における青年期の「心理社会的モラトリアム」の説明として正しいものはどれか。",choices:["アイデンティティが完全に確立され，社会的責任を主体的に担える状態","大人としての社会的責任が「猶予」され，試行錯誤しながら自己を探索できる期間","親への依存が解消され，精神的・経済的な自立が達成された状態","役割拡散が慢性化し，アイデンティティの回復が困難になった状態"],answer:1,explanation:"<strong>心理社会的モラトリアム</strong>とは、大人としての責任を「猶予」されながら様々な役割を試行錯誤できる期間です。日本では大学進学期がこの機能を果たしてきましたが、近年は卒業後も延長する傾向があります。"},
+  {id:39,round:6,isMain:true,text:"エリクソンの発達理論において，成人前期（第6段階）の心理社会的危機として正しいものはどれか。",choices:["親密性　対　孤立","生殖性　対　停滞","自我統合　対　絶望","同一性　対　役割拡散"],answer:0,explanation:"エリクソン第6段階（成人前期）の危機は<strong>「親密性 対 孤立」</strong>です。アイデンティティが確立された上で他者と深い絆を結べるかが課題で、基本的強さは「愛（love）」です。"},
+  {id:40,round:6,isMain:true,text:"アーネットが提唱した「新成人期（emerging adulthood）」の特徴として最も適切なものはどれか。",choices:["職業とアイデンティティが安定し，社会的責任を本格的に担い始める成熟の時代","親密な関係の構築が主要課題となる，モラトリアム終了後の定着の時代","青年期の混乱が解消され，社会参加への意欲が最も高まる時代","18〜25歳頃の，同一性探求や生活の不安定さが続く「大人でも若者でもない」移行の時代"],answer:3,explanation:"<strong>新成人期（emerging adulthood）</strong>はアーネットが2000年に提唱した18〜25歳頃の概念です。同一性探求の継続・生活の不安定さ・自己中心性・可能性の感覚・移行感が特徴です。"},
+  {id:41,round:6,isMain:true,text:"青年期に親への反発として現れる「心理的離乳」について，正しい理解はどれか。",choices:["親への愛着が失われ，関係性が崩壊していくことを示す危険なサインである","情緒的な未熟さから生じる退行であり，受容的な支援が必要な状態である","親から心理的に自立しようとする，発達上の自然なプロセスである","モラトリアムが長期化した結果，依存が強化された一形態である"],answer:2,explanation:"<strong>心理的離乳</strong>は親への反発・反抗として現れますが、これは親から心理的に自立しようとする発達上の自然なプロセスです。「うるさい」という言葉は自立の第一歩として理解できます。"},
+  {id:42,round:6,isMain:true,text:"青年期を「子ども集団にも大人集団にも属せない」状態として表した概念と，それを提唱した人物の組み合わせとして正しいものはどれか。",choices:["「疾風怒涛」─ ホール","「境界人（マージナル・マン）」─ レヴィン","「第二の誕生」─ ルソー","「心理的離乳」─ ホリングワース"],answer:1,explanation:"<strong>レヴィン</strong>は青年期を子ども集団にも大人集団にも属せない<strong>「境界人（マージナル・マン）」</strong>と表現しました。ホールは「疾風怒涛」、ルソーは「第二の誕生」と表現しています。"},
+  {id:43,round:6,isMain:true,text:"マルシアの同一性地位4類型のうち，「危機も傾倒もない」状態を何というか。",choices:["同一性拡散","早期完了","モラトリアム","同一性達成"],answer:0,explanation:"<strong>同一性拡散</strong>は「危機なし・傾倒なし」の状態です。「何でもいい・どうでもいい」という無関心・混乱の状態で、見かけ上のんびりして見えることもあり周囲が気づきにくい場合があります。"},
+  // ─── 第7回 本番7問 ───
+  {id:44,round:7,isMain:true,text:"ホーンとカッテルが提唱した「結晶性知能」の説明として正しいものはどれか。",choices:["新しい問題を素早く解く力で，25歳頃にピークを迎え緩やかに低下する","短期記憶と注意機能を組み合わせた情報処理能力で，作業遂行の基盤となる","抽象的・仮説的思考を支える認知機能で，青年期（形式的操作期）に完成する","経験・学習から蓄積された知識・語彙・判断力で，60〜70代まで維持・向上しやすい"],answer:3,explanation:"<strong>結晶性知能</strong>は経験・学習の蓄積から形成される知識・語彙・判断力などで、60〜70代まで維持・向上しやすいのが特徴です。一方、流動性知能は25歳頃にピークを迎え緩やかに低下します。"},
+  {id:45,round:7,isMain:true,text:"エリクソンの発達理論において，成人中期（第7段階）の心理社会的危機として正しいものはどれか。",choices:["親密性　対　孤立","自我統合　対　絶望","生殖性　対　停滞","同一性　対　役割拡散"],answer:2,explanation:"エリクソン第7段階（成人中期）の危機は<strong>「生殖性 対 停滞」</strong>です。子育て・指導・創造的な仕事を通じて次世代を育てることが課題で、基本的強さは「世話（care）」です。"},
+  {id:46,round:7,isMain:true,text:"バルテスのSOC理論における「補償（Compensation）」の説明として正しいものはどれか。",choices:["できないことが増えた中で，大切な領域に絞り込んで取り組むこと","失われた機能を，別の手段や道具・工夫によって補うこと","選んだ領域に資源や練習を集中させ，パフォーマンスを高めること","社会的役割から徐々に離脱し，内面の充実に移行すること"],answer:1,explanation:"SOC理論の<strong>補償（C）</strong>は、失われた機能を別の手段・道具・工夫で補うことです。ルービンシュタインが速い部分の前でテンポを落として対比を際立たせたのがその例です。"},
+  {id:47,round:7,isMain:true,text:"エリクソンの老年期（第8段階）における「自我統合」の達成として最も適切なものはどれか。",choices:["「この人生でよかった」と自分の一生に意味と価値を見出し，受け入れること","残り時間が少ないことへの恐怖から，過去の後悔と怒りが強まる状態","社会的活動を維持し続けることで，喪失感を補い充実感を保つこと","老化による変化を否定し，若さを保とうとする心理的な適応をとること"],answer:0,explanation:"<strong>自我統合</strong>は「この人生でよかった」と自分の一生を受け入れること。基本的強さは「英知（wisdom）」です。達成できない場合は「絶望（despair）」＝後悔・怒り・虚無感となります。"},
+  {id:48,round:7,isMain:true,text:"フレイル（frailty）の説明として最も適切なものはどれか。",choices:["加齢に伴う認知機能の著しい低下で，日常生活に全面的な介護を要する状態","75歳以上の後期高齢者に一般的にみられる，不可逆的な筋力・歩行速度の低下状態","高齢者の社会的孤立が長期化した結果として生じる，うつ病リスクが高い状態","「健康」と「要介護」の中間にある脆弱な状態で，適切な介入により回復が可能な段階"],answer:3,explanation:"<strong>フレイル</strong>（2014年、日本老年医学会提唱）は「健康」と「要介護」の中間状態です。体重減少・疲労感・筋力低下・歩行速度低下・活動量低下が基準で、適切な介入により<strong>回復可能（可逆性あり）</strong>です。"},
+  {id:49,round:7,isMain:true,text:"カーステンセンの「社会情動的選択理論（SST）」の説明として最も適切なものはどれか。",choices:["老年期には社会から少しずつ離脱することが本人と社会の双方に機能的であるとする考え方","社会的役割・活動を積極的に維持し続けることで高い生活満足度が得られるとする考え方","残り時間が少ないと感じるほど，情緒的に意味のある少数の関係を重視するようになるとする考え方","加齢に伴う喪失を補いながら適応する「選択・最適化・補償」の戦略を示した理論"],answer:2,explanation:"<strong>SST（社会情動的選択理論）</strong>では、残り時間が少ないと感じるほど情緒的満足感を重視し、広く浅い関係より少数の深い関係を選ぶようになります。これは「縮小」ではなく「合理的な選択」です。"},
+  {id:50,round:7,isMain:true,text:"バトラーが老年期に特徴的な心理的作業として提唱した「ライフレビュー」の説明として最も適切なものはどれか。",choices:["老年期の認知機能低下を予防するために，過去の出来事を繰り返し確認する訓練","過去の出来事を振り返り，自分の人生を意味づけ直す能動的なプロセス","高齢者が若い世代に人生の知恵を伝えるための，組織的な語り聞かせ活動","記憶力の低下を補うために，日記や写真を活用して過去を記録し続ける作業"],answer:1,explanation:"<strong>ライフレビュー</strong>（バトラー）は過去を振り返り自分の人生を意味づけ直す能動的プロセスです。単なる昔話ではなく、人生を統合するための心理的作業であり、<strong>回想療法</strong>として認知症予防・尊厳維持に活用されています。"},
+  // ─── 追加 第1回3問 ───
+  {id:51,round:1,isMain:false,text:"ブロンフェンブレンナーの生態学的システム理論において，「マイクロシステム同士の関係」（例：学校での出来事が家庭に影響する）にあたる層を何というか。",choices:["マクロシステム","メゾシステム","エクソシステム","クロノシステム"],answer:1,explanation:"<strong>メゾシステム</strong>はマイクロシステム（家庭・学校など）同士の関係です。例えば「学校でのトラブルが家庭の雰囲気に影響する」「親の職場のストレスが家庭に持ち込まれる」といった相互作用がこれにあたります。"},
+  {id:52,round:1,isMain:false,text:"発達の概念のうち「成長（growth）」の説明として正しいものはどれか。",choices:["遺伝的プログラムに基づき環境の影響を受けずに生じる質的変化","経験や訓練によって生じる永続的な行動の変化","身体のサイズや重量など，量的な増大","成熟期以降に生じる機能低下を伴う変化"],answer:2,explanation:"<strong>成長</strong>は身長・体重など身体の量的な増大を指します。質的な変化である「成熟」、経験による変化である「学習」、機能低下である「老化」とは区別して覚えましょう。"},
+  {id:53,round:1,isMain:false,text:"「順序性と方向性」という発達の基本原理において，身体発達の方向性として正しいものはどれか。",choices:["末梢から中心へ，尾部から頭部へ","頭部から尾部へ，中心から末梢へ","中心から末梢へ，尾部から頭部へ","頭部から尾部へ，末梢から中心へ"],answer:1,explanation:"発達の方向性は<strong>「頭部から尾部へ」「中心から末梢へ」</strong>です。首が据わる→座る→立つ→歩く、という順序が前者の例。体幹の運動→腕→手→指先という順序が後者の例です。"},
+  // ─── 追加 第2回4問 ───
+  {id:54,round:2,isMain:false,text:"「学習（learning）」の定義として最も適切なものはどれか。",choices:["遺伝的プログラムに従って機能が整っていくプロセス","経験や訓練などの環境的要因によって生じる，比較的永続的な行動の変化","身体のサイズや機能が量的に増大していくプロセス","加齢に伴い機能が低下していく変化のプロセス"],answer:1,explanation:"<strong>学習</strong>は「経験・訓練などの環境的要因による比較的永続的な行動の変化」です。「比較的永続的」という点が重要で、一時的な変化（疲労・薬物の効果など）は学習には含まれません。"},
+  {id:55,round:2,isMain:false,text:"パブロフの古典的条件づけにおいて，条件刺激を繰り返しても無条件刺激が伴わない場合に起こる現象を何というか。",choices:["般化","消去","自発的回復","弁別"],answer:1,explanation:"<strong>消去</strong>とは、条件づけが成立した後に条件刺激を繰り返しても無条件刺激が伴わないと、条件反応が徐々に弱まって消えていく現象です。トラウマ反応の治療にも活用される原理です。"},
+  {id:56,round:2,isMain:false,text:"ハーロウの代理母実験が示した「接触の快」の意味として最も適切なものはどれか。",choices:["栄養を与えてくれる対象への愛着が最も強く形成される","柔らかさや安心感などの身体的接触が愛着形成の重要な基盤となる","視覚的に似た対象への愛着が般化によって形成される","音声刺激への慣れが愛着形成を促進する"],answer:1,explanation:"ハーロウの実験は「愛着はミルク（栄養）から生まれる」という従来説を否定し、<strong>「接触の快（柔らかさ・安心感）」</strong>こそが愛着形成の基盤であることを示しました。これは人間の愛着理解にも重大な示唆を与えます。"},
+  {id:57,round:2,isMain:false,text:"エインスワースのSS法における「アンビバレント型（Cタイプ）」の特徴として正しいものはどれか。",choices:["養育者が戻っても近づこうとせず，反応が乏しい","分離・再会時の反応が一貫せず，硬直や混乱した行動がみられる","分離時に強く泣き，再会時もしがみつきながら養育者を拒絶する","分離時に泣くが，再会時に速やかに落ち着く"],answer:2,explanation:"<strong>アンビバレント型（Cタイプ）</strong>は養育者の対応が一貫しないことが多い環境で形成されます。強く泣いて訴えながらも、再会時は養育者にしがみつきつつ拒絶するという矛盾した反応が特徴です。"},
+  // ─── 追加 第3回4問 ───
+  {id:58,round:3,isMain:false,text:"胎児期において聴覚が完成する時期として最も適切なものはどれか。",choices:["10週頃","16週頃","20週頃","25週頃"],answer:2,explanation:"胎児の<strong>聴覚は20週頃に完成</strong>します。8か月頃には音の高低・リズムを識別し、母親の声や心音を心地よい音として記憶します。出生後も母親の声を好む傾向はこの胎内での学習に基づきます。"},
+  {id:59,round:3,isMain:false,text:"「全か無かの法則」が適用される時期として正しいものはどれか。",choices:["胎芽期（2〜8週）","細胞期（受精〜約2週）","胎児期（8週〜出生）","新生児期（出生〜1か月）"],answer:1,explanation:"<strong>全か無かの法則</strong>は<strong>細胞期（受精〜2週）</strong>に適用されます。この時期の有害因子の影響は「流産（全）」か「完全修復（無）」のいずれかとなります。器官形成期（胎芽期）の臨界期とは区別して覚えましょう。"},
+  {id:60,round:3,isMain:false,text:"産後うつとマタニティ・ブルーズの違いとして正しいものはどれか。",choices:["マタニティ・ブルーズは産後1か月以降に発症し，長期間続く","産後うつは産後3〜10日に一過性に現れ，自然に消失する","マタニティ・ブルーズは産後3〜10日に一過性に現れ，産後うつは不眠・自責感・希死念慮を伴う重篤な疾患である","両者は症状が同じであり，持続期間のみが異なる"],answer:2,explanation:"<strong>マタニティ・ブルーズ</strong>は産後3〜10日の一過性で自然消失します。<strong>産後うつ</strong>は発症率10〜15%で、不眠・自責感・児への無関心・希死念慮を伴う重篤な疾患です。EPDSによる早期発見が重要です。"},
+  {id:61,round:3,isMain:false,text:"「サイレント・ベイビー」の説明として最も適切なものはどれか。",choices:["聴覚障害により音声刺激に反応しない乳児の状態","泣いても無視され続けた結果，泣くことをやめてしまい表情が乏しくなった状態","愛着形成が安定しており，分離時も泣かずに落ち着いている状態","早産により神経系が未熟なため，外界の刺激に反応しにくい状態"],answer:1,explanation:"<strong>サイレント・ベイビー</strong>はネグレクト（育児放棄）の徴候の一つです。泣いても無視され続けた乳児が「泣いても無意味」と学習し、泣くことをやめてしまった状態で、表情が乏しく誰にでも無差別にしがみつく反応がみられます。"},
+  // ─── 追加 第4回4問 ───
+  {id:62,round:4,isMain:false,text:"ピアジェの前操作期における「延滞模倣」の説明として正しいものはどれか。",choices:["他者の行動を観察しながら同時に模倣すること","時間をおいて，以前に観察した行動を後から再現すること","養育者の表情を鏡のように即座に模倣すること","架空の存在や物語の登場人物の行動を模倣すること"],answer:1,explanation:"<strong>延滞模倣</strong>とは、時間をおいて以前に観察した行動を後から再現することです。表象能力（目の前にないものをイメージする力）の発達を示します。ごっこ遊びの基盤ともなります。"},
+  {id:63,round:4,isMain:false,text:"エリクソンの発達理論において，幼児後期（3〜6歳）の心理社会的危機として正しいものはどれか。",choices:["自律性　対　恥・疑惑","勤勉性　対　劣等感","自主性　対　罪悪感","信頼　対　不信"],answer:2,explanation:"エリクソン第3段階（幼児後期・3〜6歳）の危機は<strong>「自主性 対 罪悪感」</strong>です。自分から計画・行動する自主性が育つ一方、行き過ぎた行動への罪悪感が生じる時期です。"},
+  {id:64,round:4,isMain:false,text:"ホフマンのしつけの3類型のうち，「最も効果的で思いやりを育む」とされるものはどれか。",choices:["力によるしつけ（体罰・脅し）","愛情の除去によるしつけ（「そんな子は嫌い」）","説明的・誘導的なしつけ（なぜダメかを繰り返し説明する）","報酬によるしつけ（よい行動に対してご褒美を与える）"],answer:2,explanation:"ホフマンの3類型のうち最も効果的なのは<strong>説明的・誘導的なしつけ</strong>です。「なぜダメか」「どうすればよいか」を繰り返し説明することで、子どもが内側から理由を理解し、思いやりの心が育まれます。"},
+  {id:65,round:4,isMain:false,text:"バンデューラのモデリング（観察学習）の説明として正しいものはどれか。",choices:["自分自身の成功体験を積み重ねることで行動が強化される学習","他者の行動を観察することで，直接経験しなくても学習が成立する","罰を与えることで，望ましくない行動を消去する学習","条件刺激と無条件刺激を対提示することで反応が形成される学習"],answer:1,explanation:"<strong>モデリング（観察学習）</strong>とは、他者の行動を観察するだけで直接経験しなくても学習が成立することです。バンデューラのボボ人形実験で示されました。子どもにとって親自身の行動がモデルとなります。"},
+  // ─── 追加 第5回4問 ───
+  {id:66,round:5,isMain:false,text:"ワーキングメモリ（作動記憶）の説明として最も適切なものはどれか。",choices:["幼少期の体験が無意識に蓄積される長期記憶の一種","情報を一時的に保持しながら処理を行う記憶システム","自転車の乗り方など，手続きとして身体に記憶される記憶","意味や知識を蓄積する，容量無制限の長期記憶"],answer:1,explanation:"<strong>ワーキングメモリ</strong>は情報を一時的に保持しながら処理を行う記憶システムです。暗算で「途中の答えを覚えながら計算する」場面がその典型です。容量には個人差があり、児童期の学業成績と強く関連します。"},
+  {id:67,round:5,isMain:false,text:"ワイナーの原因帰属理論において，「努力」帰属が望ましい理由として正しいものはどれか。",choices:["努力は内的・安定的な要因であり，次への意欲につながりやすいから","努力は外的・不安定な要因であり，失敗の責任を自分に帰属させないから","努力は内的・不安定な要因であり，次の行動への意欲につながりやすいから","努力は外的・安定的な要因であり，環境を変えようとする動機づけになるから"],answer:2,explanation:"「努力」は<strong>内的・不安定（コントロール可能）</strong>な要因です。「次はもっと頑張ればできる」という見通しが持てるため、次の行動への意欲につながりやすいとされます。「能力がない」は内的・安定的で無力感につながりやすいです。"},
+  {id:68,round:5,isMain:false,text:"サリヴァンが提唱した「チャムシップ（chumship）」の説明として正しいものはどれか。",choices:["青年期に形成される，異性との深い恋愛関係","思春期前期に芽生える，特定の親友と秘密や悩みを共有する親密な関係","児童期後半の閉鎖的な同性集団（ギャング）での仲間関係","成人前期における，職場や地域での社会的ネットワーク"],answer:1,explanation:"<strong>チャムシップ</strong>（サリヴァン）は思春期前期（9〜12歳）に芽生える特定の親友との親密な関係です。秘密や悩みを打ち明け合うことで、他者を思いやる力の基盤が育まれます。"},
+  {id:69,round:5,isMain:false,text:"不登校の対応として，現在最も推奨されている基本的な考え方はどれか。",choices:["早期に登校を再開させることが最優先であり，段階的な登校刺激が有効","「必要な充電期間」として捉え，本人の安心と自尊心の回復を優先する","家庭での生活習慣を厳格に管理し，規則正しいリズムを取り戻させる","学力の遅れを補うため，家庭学習の徹底を最初の目標とする"],answer:1,explanation:"現在の不登校対応の基本は<strong>「必要な充電期間」</strong>として捉え、解決を急がず本人の安心と自尊心の回復を優先することです。スクールカウンセラー・教育支援センターとの連携も有効です。"},
+  // ─── 追加 第6回3問 ───
+  {id:70,round:6,isMain:false,text:"エリクソンが青年期の基本的強さ（virtue）として示したものはどれか。",choices:["愛（love）","世話（care）","誠実性（fidelity）","英知（wisdom）"],answer:2,explanation:"エリクソンの各段階の基本的強さ：青年期＝<strong>誠実性（fidelity）</strong>、成人前期＝愛（love）、成人中期＝世話（care）、老年期＝英知（wisdom）。誠実性は「自分が選んだ価値観・理想に忠実に生きる力」です。"},
+  {id:71,round:6,isMain:false,text:"スーパーのキャリア発達理論において，15〜24歳頃にあたる段階として正しいものはどれか。",choices:["成長期","探索期","確立期","維持期"],answer:1,explanation:"スーパーのキャリア発達：0〜14歳＝成長期、<strong>15〜24歳＝探索期</strong>、25〜44歳＝確立期、45〜64歳＝維持期。青年期〜成人前期は「探索期」で、様々な職業体験を通じて自分に合った仕事を模索する重要な時期です。"},
+  {id:72,round:6,isMain:false,text:"「ヤマアラシのジレンマ」が示す心理として最も適切なものはどれか。",choices:["青年期特有の，自分だけが特別だという思い込み","親密さへの欲求と，傷つくことへの恐怖の間で揺れ動く葛藤","アイデンティティが確立できず，役割が拡散した状態","心理的離乳の過程で生じる，親への怒りと依存の葛藤"],answer:1,explanation:"<strong>ヤマアラシのジレンマ</strong>（ショーペンハウアー）：近づくと針で刺し合い、離れると寒い。これは<strong>「親密さへの欲求」と「傷つくことへの恐怖」の葛藤</strong>を表し、成人前期の「親密性」獲得の課題そのものです。"},
+  // ─── 追加 第7回3問 ───
+  {id:73,round:7,isMain:false,text:"ユングが「人生の正午」と呼んだ時期に求められる課題として最も適切なものはどれか。",choices:["職業・地位・家族を確立し，社会的成功を目指すこと","社会的活動から離脱し，内面の充実へと移行すること","外向きの達成から内面の探求・精神的な深まりへと転換すること","老いと死を受け入れ，人生を統合すること"],answer:2,explanation:"ユングは40歳頃を<strong>「人生の正午」</strong>と呼びました。前半生（午前）が外向きの社会的成功を目指す時期であるのに対し、後半生（午後）は内面の探求・精神的な深まりへの転換が課題となります。"},
+  {id:74,round:7,isMain:false,text:"バルテスのSOC理論における「選択（Selection）」の説明として正しいものはどれか。",choices:["失われた機能を別の手段や道具で補うこと","選んだ領域に資源を集中させパフォーマンスを高めること","加齢で全部はできなくなるため，大切なことに絞り込むこと","社会的役割から離脱し，内面の充実に集中すること"],answer:2,explanation:"SOC理論の<strong>選択（S）</strong>は、加齢で全部はできなくなる中で大切なことに絞り込むことです。ルービンシュタインが演奏する曲数を減らしたのがその例。補償（C）は失われた機能を別の手段で補うこと、最適化（O）は集中して磨くことです。"},
+  {id:75,round:7,isMain:false,text:"カーステンセンの社会情動的選択理論（SST）において，老年期に人間関係が「縮小」するのではなく「合理的な選択」であると説明される理由として正しいものはどれか。",choices:["身体的な移動能力の低下により，行動範囲が狭まるため","残り時間が少ないと感じることで，情緒的に意味のある深い関係を優先するようになるため","認知機能の低下により，多くの人間関係を管理することが困難になるため","社会的役割の喪失により，関係を維持する動機づけが失われるため"],answer:1,explanation:"SSTでは老年期の関係縮小は能力低下ではなく<strong>「残り時間が少ない」という時間的展望の変化</strong>による合理的選択です。情緒的に意味のある少数の深い関係を優先するようになります。"}
+];
+
+// =============================================
+// STATE
+// =============================================
+const STORAGE_KEY = 'shogai_study_v2';
+let state = {
+  seen: {},
+  bookmarks: {},   // id -> true
+  sessionQueue: [],
+  sessionIndex: 0,
+  sessionCorrect: 0,
+  sessionWrong: 0,
+  sessionWrongIds: [],
+  sessionMode: 0
+};
+
+function loadState() {
+  try {
+    const s = localStorage.getItem(STORAGE_KEY);
+    if (s) { const d = JSON.parse(s); state.seen = d.seen || {}; state.bookmarks = d.bookmarks || {}; }
+  } catch(e) {}
+}
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({seen: state.seen, bookmarks: state.bookmarks})); } catch(e) {}
+}
+
+// =============================================
+// QUEUE
+// =============================================
+function buildQueue(n) {
+  const mainQs = QUESTIONS.filter(q => q.isMain);
+  const subQs  = QUESTIONS.filter(q => !q.isMain);
+  const seenIds = Object.keys(state.seen).map(Number);
+  const allDone = QUESTIONS.every(q => seenIds.includes(q.id));
+
+  function getWeight(q) {
+    const r = state.seen[q.id];
+    if (!r) return 1;
+    return r.correct ? 0.5 : 2;
+  }
+  function wShuffle(pool) {
+    return [...pool].sort((a,b) => (Math.random()-.5)*2 + (getWeight(b)-getWeight(a))*.3);
+  }
+
+  let mainPool = allDone ? mainQs : mainQs.filter(q=>!seenIds.includes(q.id));
+  let subPool  = allDone ? subQs  : subQs.filter(q=>!seenIds.includes(q.id));
+  if (mainPool.length < Math.ceil(n*2/3))  mainPool = mainQs;
+  if (subPool.length  < Math.floor(n*1/3)) subPool  = subQs;
+
+  const sm = wShuffle(mainPool);
+  const ss = wShuffle(subPool);
+  const nMain = Math.round(n*2/3);
+  const nSub  = n - nMain;
+  const pm = sm.slice(0,nMain), ps = ss.slice(0,nSub);
+
+  const q = [];
+  const ma=[...pm], sa=[...ps];
+  while(ma.length||sa.length){
+    if(ma.length) q.push(ma.shift());
+    if(ma.length) q.push(ma.shift());
+    if(sa.length) q.push(sa.shift());
+  }
+  for(let i=q.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[q[i],q[j]]=[q[j],q[i]];}
+  return q.slice(0,n);
+}
+
+// =============================================
+// TOP
+// =============================================
+function updateTopStats() {
+  const ids = Object.keys(state.seen);
+  const done = ids.length;
+  const cor  = ids.filter(id=>state.seen[id].correct).length;
+  const acc  = done>0 ? Math.round(cor/done*100) : null;
+  document.getElementById('stat-done').textContent = done;
+  document.getElementById('stat-cor').textContent  = cor;
+  document.getElementById('stat-acc').textContent  = acc!==null ? acc+'%' : '—';
+  document.getElementById('prog-text').textContent = done+' / 75問';
+  document.getElementById('prog-fill').style.width = (done/75*100)+'%';
+  // saved badge
+  const n = Object.keys(state.bookmarks).length;
+  const badge = document.getElementById('saved-count-badge');
+  badge.textContent = n>0 ? '（'+n+'問）' : '';
+}
+
+function selectMode(el,n){
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('selected'));
+  el.classList.add('selected');
+  state.sessionMode = n;
+  document.getElementById('start-btn').disabled = false;
+}
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// =============================================
+// QUIZ
+// =============================================
+function startQuiz(){
+  if(!state.sessionMode) return;
+  state.sessionQueue    = buildQueue(state.sessionMode);
+  state.sessionIndex    = 0;
+  state.sessionCorrect  = 0;
+  state.sessionWrong    = 0;
+  state.sessionWrongIds = [];
+  document.getElementById('q-tot').textContent = state.sessionQueue.length;
+  showScreen('screen-quiz');
+  renderQuestion();
+}
+
+function renderQuestion(){
+  const q   = state.sessionQueue[state.sessionIndex];
+  const idx = state.sessionIndex;
+  const tot = state.sessionQueue.length;
+
+  document.getElementById('q-cur').textContent   = idx+1;
+  document.getElementById('mini-fill').style.width = (idx/tot*100)+'%';
+  document.getElementById('hdr-c').textContent   = state.sessionCorrect;
+  document.getElementById('hdr-w').textContent   = state.sessionWrong;
+
+  const cat = document.getElementById('q-cat');
+  const dot = document.getElementById('q-dot');
+  cat.textContent = '第'+q.round+'回 '+(q.isMain?'本番問題':'練習問題');
+  dot.className   = 'dot'+(q.isMain?' main':'');
+
+  document.getElementById('q-text').textContent = q.text;
+
+  // shuffle choices
+  const idx4=[0,1,2,3];
+  for(let i=3;i>0;i--){const j=Math.floor(Math.random()*(i+1));[idx4[i],idx4[j]]=[idx4[j],idx4[i]];}
+  const labels=['A','B','C','D'];
+  const choicesEl=document.getElementById('choices');
+  choicesEl.innerHTML='';
+  idx4.forEach((orig,disp)=>{
+    const btn=document.createElement('button');
+    btn.className='choice-btn';
+    btn.innerHTML=`<span class="clabel">${labels[disp]}</span><span>${q.choices[orig]}</span>`;
+    btn.onclick=()=>selectAnswer(orig,q,idx4);
+    choicesEl.appendChild(btn);
+  });
+
+  document.getElementById('result-panel').classList.remove('show');
+  document.getElementById('next-btn').classList.remove('show');
+  document.getElementById('expl-toggle').classList.remove('open');
+  document.getElementById('expl-body').classList.remove('show');
+  document.getElementById('res-correct-line').style.display='none';
+}
+
+function selectAnswer(chosen,q,idx4){
+  const ok = chosen===q.answer;
+  state.seen[q.id] = {correct:ok};
+  saveState();
+  if(ok) state.sessionCorrect++;
+  else { state.sessionWrong++; state.sessionWrongIds.push(q.id); }
+
+  document.querySelectorAll('.choice-btn').forEach((btn,disp)=>{
+    btn.disabled=true;
+    const orig=idx4[disp];
+    if(orig===q.answer)          btn.classList.add('correct');
+    else if(orig===chosen&&!ok)  btn.classList.add('wrong');
+  });
+
+  const panel     = document.getElementById('result-panel');
+  const header    = document.getElementById('res-header');
+  const icon      = document.getElementById('res-icon');
+  const title     = document.getElementById('res-title');
+  const corLine   = document.getElementById('res-correct-line');
+  const explBody  = document.getElementById('expl-body');
+
+  header.className = 'res-header '+(ok?'correct':'wrong');
+  icon.className   = 'res-icon '+(ok?'correct':'wrong');
+  icon.textContent = ok?'✓':'✗';
+  title.className  = 'res-title '+(ok?'correct':'wrong');
+  title.textContent= ok?'正解！':'不正解';
+
+  if(!ok){
+    corLine.style.display='block';
+    corLine.innerHTML='正解：<strong>'+q.choices[q.answer]+'</strong>';
+  }
+  explBody.innerHTML = q.explanation;
+
+  panel.classList.add('show');
+  document.getElementById('next-btn').classList.add('show');
+  document.getElementById('hdr-c').textContent=state.sessionCorrect;
+  document.getElementById('hdr-w').textContent=state.sessionWrong;
+}
+
+function toggleExpl(){
+  const btn  = document.getElementById('expl-toggle');
+  const body = document.getElementById('expl-body');
+  btn.classList.toggle('open');
+  body.classList.toggle('show');
+}
+
+function nextQuestion(){
+  state.sessionIndex++;
+  if(state.sessionIndex>=state.sessionQueue.length) showFinish();
+  else renderQuestion();
+}
+
+// =============================================
+// FINISH
+// =============================================
+function showFinish(){
+  const tot=state.sessionQueue.length;
+  const cor=state.sessionCorrect;
+  const wrg=state.sessionWrong;
+  const pct=Math.round(cor/tot*100);
+  document.getElementById('fin-pct').textContent=pct+'%';
+  document.getElementById('fin-c').textContent=cor;
+  document.getElementById('fin-w').textContent=wrg;
+  let msg,sub;
+  if(pct>=90){msg='素晴らしい！';sub='ほぼ完璧です。自信を持って本番に臨みましょう！';}
+  else if(pct>=70){msg='よくできました！';sub='苦手な問題を中心に復習しましょう。';}
+  else if(pct>=50){msg='もう少し！';sub='間違えた問題の解説をしっかり読んで復習しましょう。';}
+  else{msg='頑張りましょう！';sub='もう一度チャレンジして，少しずつ力をつけていきましょう。';}
+  document.getElementById('fin-msg').textContent=msg;
+  document.getElementById('fin-sub').textContent=sub;
+
+  const revBtn=document.getElementById('review-link-btn');
+  if(state.sessionWrongIds.length>0) revBtn.classList.add('show');
+  else revBtn.classList.remove('show');
+
+  showScreen('screen-finish');
+}
+
+function goTop(){
+  showScreen('screen-top');
+  updateTopStats();
+}
+
+function goFinish(){
+  showScreen('screen-finish');
+}
+
+// =============================================
+// REVIEW
+// =============================================
+function goReview(){
+  const wrongQs = state.sessionWrongIds
+    .map(id=>QUESTIONS.find(q=>q.id===id))
+    .filter(Boolean);
+
+  document.getElementById('review-count-text').textContent=wrongQs.length+'問の間違いがあります';
+
+  const list=document.getElementById('review-list');
+  list.innerHTML='';
+
+  wrongQs.forEach((q,i)=>{
+    const isSaved = !!state.bookmarks[q.id];
+    const item=document.createElement('div');
+    item.className='review-item';
+    item.dataset.qid = q.id;
+    item.innerHTML=`
+      <div class="review-item-header" onclick="toggleReviewItem(this)">
+        <div class="review-num">${i+1}</div>
+        <div class="review-q-text">${q.text}</div>
+        <button class="review-bookmark-btn ${isSaved?'saved':''}" data-id="${q.id}" onclick="event.stopPropagation();toggleBookmark(this,${q.id})">
+          <span class="bk-icon">${isSaved?'⭐':'☆'}</span>
+          <span class="bk-label">${isSaved?'保存済み':'保存する'}</span>
+        </button>
+        <div class="review-chevron">▶</div>
+      </div>
+      <div class="review-detail">
+        <div class="review-correct-box">正解：<strong>${q.choices[q.answer]}</strong></div>
+        <button class="review-expl-toggle" onclick="toggleReviewExpl(this)">
+          <span class="arrow">▶</span> 解説を見る
+        </button>
+        <div class="review-expl-body">${q.explanation}</div>
+      </div>`;
+    list.appendChild(item);
+  });
+
+  showScreen('screen-review');
+}
+
+function toggleBookmark(btn, qid) {
+  if (state.bookmarks[qid]) {
+    delete state.bookmarks[qid];
+    btn.classList.remove('saved');
+    btn.querySelector('.bk-icon').textContent = '☆';
+    btn.querySelector('.bk-label').textContent = '保存する';
+  } else {
+    state.bookmarks[qid] = true;
+    btn.classList.add('saved');
+    btn.querySelector('.bk-icon').textContent = '⭐';
+    btn.querySelector('.bk-label').textContent = '保存済み';
+  }
+  saveState();
+}
+
+function goSaved() {
+  const savedIds = Object.keys(state.bookmarks).map(Number);
+  const savedQs  = savedIds.map(id=>QUESTIONS.find(q=>q.id===id)).filter(Boolean);
+
+  document.getElementById('saved-screen-count').textContent =
+    savedQs.length>0 ? savedQs.length+'問保存されています' : '保存された問題はありません';
+
+  const list = document.getElementById('saved-list');
+  list.innerHTML = '';
+
+  if (savedQs.length === 0) {
+    list.innerHTML = '<div class="saved-empty"><div class="icon">⭐</div>まだ問題が保存されていません。<br>間違えた問題の見直し画面で<br>☆ボタンを押して保存できます。</div>';
+    showScreen('screen-saved');
+    return;
+  }
+
+  savedQs.forEach((q,i)=>{
+    const item = document.createElement('div');
+    item.className = 'saved-item';
+    item.dataset.qid = q.id;
+    item.innerHTML = `
+      <div class="saved-item-header">
+        <div class="saved-item-left" onclick="toggleSavedItem(this)">
+          <div class="saved-num">${i+1}</div>
+          <div class="saved-q-text">${q.text}</div>
+          <div class="saved-chevron">▶</div>
+        </div>
+        <button class="uncheck-btn" onclick="removeSaved(this,${q.id})">✕ 削除</button>
+      </div>
+      <div class="saved-detail">
+        <div class="saved-correct-box">正解：<strong>${q.choices[q.answer]}</strong></div>
+        <button class="saved-expl-toggle" onclick="toggleSavedExpl(this)">
+          <span class="arrow">▶</span> 解説を見る
+        </button>
+        <div class="saved-expl-body">${q.explanation}</div>
+      </div>`;
+    list.appendChild(item);
+  });
+
+  showScreen('screen-saved');
+}
+
+function toggleSavedItem(left) {
+  const item = left.closest('.saved-item');
+  item.classList.toggle('open');
+}
+
+function toggleSavedExpl(btn) {
+  btn.classList.toggle('open');
+  btn.nextElementSibling.classList.toggle('show');
+}
+
+function removeSaved(btn, qid) {
+  delete state.bookmarks[qid];
+  saveState();
+  // remove from DOM
+  const item = btn.closest('.saved-item');
+  item.style.opacity = '0';
+  item.style.transition = 'opacity .2s';
+  setTimeout(()=>{
+    item.remove();
+    // renumber
+    const items = document.querySelectorAll('.saved-item');
+    items.forEach((el,i)=>{ const n=el.querySelector('.saved-num'); if(n) n.textContent=i+1; });
+    const count = items.length;
+    document.getElementById('saved-screen-count').textContent =
+      count>0 ? count+'問保存されています' : '保存された問題はありません';
+    if(count===0){
+      document.getElementById('saved-list').innerHTML =
+        '<div class="saved-empty"><div class="icon">⭐</div>保存された問題がすべて削除されました。</div>';
+    }
+  }, 200);
+}
+
+function toggleReviewItem(header){
+  const item=header.closest('.review-item');
+  item.classList.toggle('open');
+}
+
+function toggleReviewExpl(btn){
+  btn.classList.toggle('open');
+  const body=btn.nextElementSibling;
+  body.classList.toggle('show');
+}
+
+// =============================================
+// RESET
+// =============================================
+function confirmReset(){
+  if(confirm('進捗をリセットしてもよいですか？\nこれまでの取り組み履歴がすべて消えます。')){
+    state.seen={};
+    saveState();
+    updateTopStats();
+  }
+}
+
+// INIT
+loadState();
+updateTopStats();
+</script>
+</body>
+</html>
